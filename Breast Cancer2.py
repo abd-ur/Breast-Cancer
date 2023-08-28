@@ -1,61 +1,59 @@
-import pandas as pd
+import cv2 
+import matplotlib.pyplot as plt
+data=cv2.imread(r"/Users/IBR/Downloads/WhatsApp Image 2023-07-12 at 3.41.48 PM.jpeg")
+#plt.imshow(data)
 
-# Replace the provided data with your actual extracted data
-data = """
-gene_id     tpm_unstranded  fpkm_unstranded fpkm_uq_unstranded
-N_unmapped  2699681         2699681         2699681
-N_multimapping  6712545     6712545         6712545
-N_noFeature     3513779     40051217        40137155
-N_ambiguous     7475875     1740158         1736973
-ENSG00000000003.15      7846   92.9159 25.5091 24.4599
-ENSG00000000005.6       0      0       0       0.0000  0.0000  0.0000
-ENSG00000000419.13      2104   93.6382 25.7074 24.6500
-ENSG00000000457.14      922    7.1956  1.9755  1.8942
-ENSG00000000460.17      268    2.4114  0.6620  0.6348
-ENSG00000000938.13      1152   18.2976 5.0234  4.8168
-ENSG00000000971.16      18162  122.2575        33.5646 32.1840
-ENSG00000001036.14      2369   45.0944 12.3802 11.8710
-ENSG00000001084.13      1984   12.3666 3.3951  3.2555
-ENSG00000001167.14      5445   76.7492 21.0707 20.2040
-ENSG00000001460.18      1133   7.1510  1.9632  1.8825
-ENSG00000001461.17      3024   17.2883 4.7463  4.5511
-ENSG00000001497.18      3041   13.0111 3.5721  3.4251
-ENSG00000001561.7       8311   96.1337 26.3926 25.3070
-ENSG00000001617.12      3340   37.1770 10.2066 9.7867
-ENSG00000001626.16      405    2.1882  0.6008  0.5761
-ENSG00000001629.10      5310   38.6032 10.5981 10.1622
-ENSG00000001630.17      252    3.8359  1.0531  1.0098
-ENSG00000001631.16      352    3.0478  0.8367  0.8023
-ENSG00000002016.18      395    4.7120  1.2936  1.2404
-ENSG00000002079.14      15     0.1278  0.0351  0.0336
-ENSG00000002330.14      1266   39.8163 10.9312 10.4815
-ENSG00000002549.12      7324   103.9434        28.5366 27.3629
-ENSG00000002586.20      20481  226.4688        62.1747 59.6174
-ENSG00000002586.20_PAR_Y        0      0       0       0.0000  0.0000  0.0000
-ENSG00000002587.10      1175   8.4893  2.3307  2.2348
-ENSG00000002726.21      265    3.7599  1.0323  0.9898
-ENSG00000002745.13      4      0.0658  0.0181  0.0173
-ENSG00000002746.15      264    1.0177  0.2794  0.2679
-ENSG00000002822.15      27     0.2006  0.0551  0.0528
-ENSG00000002834.18      23229  176.7173        48.5160 46.5204
-ENSG00000002919.15      1829   23.7718 6.5263  6.2579
-ENSG00000002933.9       2337   36.1051 9.9123  9.5046
-ENSG00000003056.8       3373   50.5408 13.8755 13.3047
-ENSG00000003096.14      107    0.8231  0.2260  0.2167
-ENSG00000003137.8       871    9.3296  2.5613  2.4560
-ENSG00000003147.19      3778   41.5614 11.4103 10.9409
-ENSG00000003249.15      6868   82.6828 22.6997 21.7661
-ENSG00000003393.15      2587   13.3135 3.6551  3.5048
-ENSG00000003400.15      2234   15.8297 4.3459  4.1671
-ENSG00000003402.20      17284  41.3030 11.3393 10.8729
-ENSG00000003436.16      4191   19.2188 5.2763  5.0593
-ENSG00000003509.16      1046   15.3899 4.2251  4.0513
-ENSG00000003756.17      4123   21.3842 5.8708  5.6294
-ENSG00000003987.14      94     0.7288  0.2001  0.1919
-ENSG00000003989.18      1111   7.5497  2.0727
-"""
+import numpy as n
+kernel=n.ones(3,n.uint8)
+erosion=cv2.erode(data,kernel, iterations=3)
+plt.imshow(erosion)
 
-# Save the data to a CSV file
-with open("lung_cancer_gene_expression.csv", "w") as file:
-    file.write(data)
+gry=cv2.cvtColor(data, cv2.COLOR_BGR2HSV)
+
+
+
+
+#plt.imshow(erosion)
+
+from sklearn.cluster import KMeans
+
+def image_segmentation(image, num_clusters):
+    # Reshape the image to a 2D array of pixels
+    pixels = image.reshape(-1, 3)
     
+    # Perform clustering using K-means algorithm
+    kmeans = KMeans(n_clusters=num_clusters, random_state=0)
+    labels = kmeans.fit_predict(pixels)
+    
+    # Reshape the labels to match the image shape
+    seg=labels.reshape(image.shape[:2])
+    
+    return seg
+
+seg_img=image_segmentation(gry,6)
+
+# Display the original and segmented images
+plt.imshow(seg_img)
+
+
+import numpy as np
+img=cv2.imread(r"/Users/IBR/Desktop/segment.png")
+# Convert the image from BGR to RGB (OpenCV reads images in BGR format)
+img_float32 = np.float32(img)
+lab_image = cv2.cvtColor(img_float32, cv2.COLOR_RGB2HSV)
+# Convert the target color to RGB format
+target_color_rgb = np.int32([[255,255,0]])
+
+# Convert the color to HSV format for better color matching
+target_color_hsv = cv2.cvtColor(target_color_rgb, cv2.COLOR_RGB2HSV)
+
+# Define a color range around the target color
+lower_bound = np.array([target_color_hsv[0][0][0] - 10, 100, 100])
+upper_bound = np.array([target_color_hsv[0][0][0] + 10, 255, 255])
+
+# Create a mask for the target color
+mask = cv2.inRange(cv2.cvtColor(seg_img, cv2.COLOR_RGB2HSV), lower_bound, upper_bound)
+
+# Count the number of non-zero pixels in the mask (i.e., occurrences of the target color)
+num_occurrences = np.count_nonzero(mask)
+print(num_occurrences)
